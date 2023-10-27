@@ -52,9 +52,21 @@ import java.util.concurrent.TimeUnit;
 public class ServerChannelInitializer extends ChannelInitializer<Channel> {
 
   private final VelocityServer server;
+  private final String listenerName;
+  private final boolean isProxyProtocol;
 
-  public ServerChannelInitializer(final VelocityServer server) {
+  /**
+   * A random javadoc here to make check style stop complaining about this (why does it complain in our fork
+   * if upstream also doesn't have it.
+   *
+   * @param server the velocity server
+   * @param listenerName the listener name configured
+   * @param isProxyProtocol if it is proxy protocol
+   */
+  public ServerChannelInitializer(final VelocityServer server, final String listenerName, final boolean isProxyProtocol) {
     this.server = server;
+    this.listenerName = listenerName;
+    this.isProxyProtocol = isProxyProtocol;
   }
 
   @Override
@@ -70,7 +82,8 @@ public class ServerChannelInitializer extends ChannelInitializer<Channel> {
         .addLast(MINECRAFT_DECODER, new MinecraftDecoder(ProtocolUtils.Direction.SERVERBOUND))
         .addLast(MINECRAFT_ENCODER, new MinecraftEncoder(ProtocolUtils.Direction.CLIENTBOUND));
 
-    final MinecraftConnection connection = new MinecraftConnection(ch, this.server, UUID.randomUUID());
+    final MinecraftConnection connection = new MinecraftConnection(listenerName, ch, this.server,
+        UUID.randomUUID());
     connection.setActiveSessionHandler(StateRegistry.HANDSHAKE,
         new HandshakeSessionHandler(connection, this.server));
     ch.pipeline().addLast(Connections.HANDLER, connection);
@@ -86,7 +99,7 @@ public class ServerChannelInitializer extends ChannelInitializer<Channel> {
           new SimpleBytesPerSecondLimiter(configuredPacketsPerSecond, configuredBytes, configuredInterval)
       );
     }
-    if (this.server.getConfiguration().isProxyProtocol()) {
+    if (isProxyProtocol) {
       ch.pipeline().addFirst(new HAProxyMessageDecoder());
     }
   }
