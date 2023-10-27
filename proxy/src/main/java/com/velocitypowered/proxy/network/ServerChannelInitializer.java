@@ -49,9 +49,13 @@ import java.util.concurrent.TimeUnit;
 public class ServerChannelInitializer extends ChannelInitializer<Channel> {
 
   private final VelocityServer server;
+  private final String listenerName;
+  private final boolean isProxyProtocol;
 
-  public ServerChannelInitializer(final VelocityServer server) {
+  public ServerChannelInitializer(final VelocityServer server, final String listenerName, final boolean isProxyProtocol) {
     this.server = server;
+    this.listenerName = listenerName;
+    this.isProxyProtocol = isProxyProtocol;
   }
 
   @Override
@@ -67,12 +71,12 @@ public class ServerChannelInitializer extends ChannelInitializer<Channel> {
         .addLast(MINECRAFT_DECODER, new MinecraftDecoder(ProtocolUtils.Direction.SERVERBOUND))
         .addLast(MINECRAFT_ENCODER, new MinecraftEncoder(ProtocolUtils.Direction.CLIENTBOUND));
 
-    final MinecraftConnection connection = new MinecraftConnection(ch, this.server);
+    final MinecraftConnection connection = new MinecraftConnection(listenerName, ch, this.server);
     connection.setActiveSessionHandler(StateRegistry.HANDSHAKE,
         new HandshakeSessionHandler(connection, this.server));
     ch.pipeline().addLast(Connections.HANDLER, connection);
 
-    if (this.server.getConfiguration().isProxyProtocol()) {
+    if (isProxyProtocol) {
       ch.pipeline().addFirst(new HAProxyMessageDecoder());
     }
   }
