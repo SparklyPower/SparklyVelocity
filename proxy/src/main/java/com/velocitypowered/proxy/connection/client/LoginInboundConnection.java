@@ -161,7 +161,8 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
     }
   }
 
-  MinecraftConnection delegatedConnection() {
+  // We need this to be public to access the listener name during login/gameprofile
+  public MinecraftConnection delegatedConnection() {
     return delegate.getConnection();
   }
 

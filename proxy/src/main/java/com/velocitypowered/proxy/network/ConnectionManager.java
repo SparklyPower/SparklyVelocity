@@ -61,8 +61,9 @@ public final class ConnectionManager {
   private final VelocityServer server;
   // These are intentionally made public for plugins like ViaVersion, which inject their own
   // protocol logic into the proxy.
-  @SuppressWarnings("WeakerAccess")
-  public final ServerChannelInitializerHolder serverChannelInitializer;
+  // We want to manually customize each bind manually
+  // @SuppressWarnings("WeakerAccess")
+  // public final ServerChannelInitializerHolder serverChannelInitializer;
   @SuppressWarnings("WeakerAccess")
   public final BackendChannelInitializerHolder backendChannelInitializer;
 
@@ -78,8 +79,8 @@ public final class ConnectionManager {
     this.transportType = TransportType.bestType();
     this.bossGroup = this.transportType.createEventLoopGroup(TransportType.Type.BOSS);
     this.workerGroup = this.transportType.createEventLoopGroup(TransportType.Type.WORKER);
-    this.serverChannelInitializer = new ServerChannelInitializerHolder(
-        new ServerChannelInitializer(this.server));
+    // this.serverChannelInitializer = new ServerChannelInitializerHolder(
+    //     new ServerChannelInitializer(this.server));
     this.backendChannelInitializer = new BackendChannelInitializerHolder(
         new BackendChannelInitializer(this.server));
     this.resolver = new SeparatePoolInetNameResolver(GlobalEventExecutor.INSTANCE);
@@ -95,11 +96,15 @@ public final class ConnectionManager {
    *
    * @param address the address to bind to
    */
-  public void bind(final InetSocketAddress address) {
+  // Allow to customize the listener via its parameters
+  // TODO: Add more customization options
+  public void bind(final String listenerName, final InetSocketAddress address, final boolean isProxyProtocol) {
+    // And here's our custom server channel initializer!
+    final ServerChannelInitializer serverChannelInitializer = new ServerChannelInitializer(this.server, listenerName, isProxyProtocol);
     final ServerBootstrap bootstrap = new ServerBootstrap()
         .channelFactory(this.transportType.serverSocketChannelFactory)
         .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, SERVER_WRITE_MARK)
-        .childHandler(this.serverChannelInitializer.get())
+        .childHandler(serverChannelInitializer)
         .childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.IP_TOS, 0x18)
         .localAddress(address);
@@ -271,9 +276,9 @@ public final class ConnectionManager {
     return bossGroup;
   }
 
-  public ServerChannelInitializerHolder getServerChannelInitializer() {
-    return this.serverChannelInitializer;
-  }
+  // public ServerChannelInitializerHolder getServerChannelInitializer() {
+  //   return this.serverChannelInitializer;
+  // }
 
   @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public HttpClient createHttpClient() {
