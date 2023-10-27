@@ -123,7 +123,8 @@ public class VelocityRegisteredServer implements RegisteredServer, ForwardingAud
             .addLast(MINECRAFT_DECODER, new MinecraftDecoder(ProtocolUtils.Direction.CLIENTBOUND))
             .addLast(MINECRAFT_ENCODER, new MinecraftEncoder(ProtocolUtils.Direction.SERVERBOUND));
 
-        ch.pipeline().addLast(HANDLER, new MinecraftConnection(ch, server));
+        // Because this is only used for pinging, we don't really care about the listener name
+        ch.pipeline().addLast(HANDLER, new MinecraftConnection("dummy-ping", ch, server));
       }
     }).connect(serverInfo.getAddress()).addListener((ChannelFutureListener) future -> {
       if (future.isSuccess()) {
