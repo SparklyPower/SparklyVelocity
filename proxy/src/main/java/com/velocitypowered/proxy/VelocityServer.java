@@ -149,7 +149,7 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       .registerTypeHierarchyAdapter(Favicon.class, FaviconSerializer.INSTANCE)
       .create();
 
-  private final ConnectionManager cm;
+  public final ConnectionManager cm;
   private final ProxyOptions options;
   private @MonotonicNonNull VelocityConfiguration configuration;
   private @MonotonicNonNull KeyPair serverKeyPair;
@@ -295,13 +295,14 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     // init console permissions after plugins are loaded
     console.setupPermissions();
 
-    final Integer port = this.options.getPort();
-    if (port != null) {
-      logger.debug("Overriding bind port to {} from command line option", port);
-      this.cm.bind(new InetSocketAddress(configuration.getBind().getHostString(), port));
-    } else {
-      this.cm.bind(configuration.getBind());
-    }
+    // We don't want Velocity to register the default Minecraft listeners
+    // final Integer port = this.options.getPort();
+    // if (port != null) {
+    //   logger.debug("Overriding bind port to {} from command line option", port);
+    //   this.cm.bind(new InetSocketAddress(configuration.getBind().getHostString(), port));
+    // } else {
+    //   this.cm.bind(configuration.getBind());
+    // }
 
     final Boolean haproxy = this.options.isHaproxy();
     if (haproxy != null) {
@@ -516,11 +517,12 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       }
     }
 
+    // Don't ewbind on reload
     // If we have a new bind address, bind to it
-    if (!configuration.getBind().equals(newConfiguration.getBind())) {
-      this.cm.bind(newConfiguration.getBind());
-      this.cm.close(configuration.getBind());
-    }
+    // if (!configuration.getBind().equals(newConfiguration.getBind())) {
+    //   this.cm.bind(newConfiguration.getBind());
+    //   this.cm.close(configuration.getBind());
+    // }
 
     boolean queryPortChanged = newConfiguration.getQueryPort() != configuration.getQueryPort();
     boolean queryAlreadyEnabled = configuration.isQueryEnabled();
