@@ -4,6 +4,7 @@ plugins {
     application
     id("velocity-init-manifest")
     alias(libs.plugins.shadow)
+    `maven-publish`
 }
 
 application {
