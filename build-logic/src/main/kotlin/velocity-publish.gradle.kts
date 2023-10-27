@@ -8,24 +8,21 @@ extensions.configure<PublishingExtension> {
         maven {
             credentials(PasswordCredentials::class.java)
 
-            name = if (version.toString().endsWith("SNAPSHOT")) "paperSnapshots" else "paper" // "paper" is seemingly not defined
-            val base = "https://repo.papermc.io/repository/maven"
-            val releasesRepoUrl = "$base-releases/"
-            val snapshotsRepoUrl = "$base-snapshots/"
-            setUrl(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+            name = "PerfectDreams"
+            url = uri("https://repo.perfectdreams.net/")
         }
     }
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
             pom {
-                name.set("Velocity")
+                name.set("SparklyVelocity")
                 description.set("The modern, next-generation Minecraft server proxy")
                 url.set("https://papermc.io/software/velocity")
                 scm {
-                    url.set("https://github.com/PaperMC/Velocity")
-                    connection.set("scm:git:https://github.com/PaperMC/Velocity.git")
-                    developerConnection.set("scm:git:https://github.com/PaperMC/Velocity.git")
+                    url.set("https://github.com/SparklyPower/SparklyVelocity")
+                    connection.set("scm:git:https://github.com/SparklyPower/SparklyVelocity.git")
+                    developerConnection.set("scm:git:https://github.com/SparklyPower/SparklyVelocity.git")
                 }
             }
         }
