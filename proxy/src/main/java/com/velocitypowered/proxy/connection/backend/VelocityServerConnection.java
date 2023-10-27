@@ -103,7 +103,8 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
         .connect(registeredServer.getServerInfo().getAddress())
         .addListener((ChannelFutureListener) future -> {
           if (future.isSuccess()) {
-            connection = new MinecraftConnection(future.channel(), server);
+            // Reuse the already created connection listener name
+            connection = new MinecraftConnection(proxyPlayer.getConnection().getListenerName(), future.channel(), server);
             connection.setAssociation(VelocityServerConnection.this);
             future.channel().pipeline().addLast(HANDLER, connection);
 
