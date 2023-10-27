@@ -84,6 +84,7 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
 
   private static final Logger logger = LogManager.getLogger(MinecraftConnection.class);
 
+  private final String listenerName;
   private final Channel channel;
   public boolean pendingConfigurationSwitch = false;
   private SocketAddress remoteAddress;
@@ -102,7 +103,8 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
    * @param channel the channel on the connection
    * @param server  the Velocity instance
    */
-  public MinecraftConnection(Channel channel, VelocityServer server) {
+  public MinecraftConnection(String listenerName, Channel channel, VelocityServer server) {
+    this.listenerName = listenerName;
     this.channel = channel;
     this.remoteAddress = channel.remoteAddress();
     this.server = server;
@@ -605,5 +607,14 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
    */
   public void setType(ConnectionType connectionType) {
     this.connectionType = connectionType;
+  }
+
+  /**
+   * Gets the name of the listener that this connection connected to.
+   *
+   * @return The listener name
+   */
+  public String getListenerName() {
+    return listenerName;
   }
 }
