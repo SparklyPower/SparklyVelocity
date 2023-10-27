@@ -33,9 +33,10 @@ import org.gradle.kotlin.dsl.getByType
 
 class VelocityPublishPlugin : Plugin<Project> {
     override fun apply(target: Project) = target.afterEvaluate {
-        if (target.name != "velocity-proxy") {
-            configure()
-        }
+        // if (target.name != "velocity-proxy") {
+        //     configure()
+        // }
+        configure() // Publish the proxy too ;w;
     }
     private fun Project.configure() {
         apply<JavaBasePlugin>()
@@ -43,26 +44,29 @@ class VelocityPublishPlugin : Plugin<Project> {
         extensions.configure<PublishingExtension> {
             repositories {
                 maven {
-                    credentials(PasswordCredentials::class.java)
+                    // credentials(PasswordCredentials::class.java)
 
-                    name = "paper"
-                    val base = "https://papermc.io/repo/repository/maven"
-                    val releasesRepoUrl = "$base-releases/"
-                    val snapshotsRepoUrl = "$base-snapshots/"
-                    setUrl(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+                    // name = "paper"
+                    // val base = "https://papermc.io/repo/repository/maven"
+                    // val releasesRepoUrl = "$base-releases/"
+                    // val snapshotsRepoUrl = "$base-snapshots/"
+                    // setUrl(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+                    // Publish to PerfectDreams
+                    name = "perfectdreams"
+                    url = uri("https://repo.perfectdreams.net/")
                 }
             }
             publications {
                 create<MavenPublication>("maven") {
                     from(components["java"])
                     pom {
-                        name.set("Velocity")
+                        name.set("SparklyVelocity")
                         description.set("The modern, next-generation Minecraft server proxy")
                         url.set("https://www.velocitypowered.com")
                         scm {
-                            url.set("https://github.com/PaperMC/Velocity")
-                            connection.set("scm:git:https://github.com/PaperMC/Velocity.git")
-                            developerConnection.set("scm:git:https://github.com/PaperMC/Velocity.git")
+                            url.set("https://github.com/SparklyPower/SparklyVelocity")
+                            connection.set("scm:git:https://github.com/SparklyPower/SparklyVelocity.git")
+                            developerConnection.set("scm:git:https://github.com/SparklyPower/SparklyVelocity.git")
                         }
                     }
                 }

@@ -4,6 +4,7 @@ plugins {
     application
     `set-manifest-impl-version`
     alias(libs.plugins.shadow)
+    `maven-publish`
 }
 
 application {
