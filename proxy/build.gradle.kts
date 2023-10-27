@@ -20,8 +20,8 @@ tasks {
 
     jar {
         manifest {
-            attributes["Implementation-Title"] = "Velocity"
-            attributes["Implementation-Vendor"] = "Velocity Contributors"
+            attributes["Implementation-Title"] = "SparklyVelocity"
+            attributes["Implementation-Vendor"] = "Velocity and SparklyPower Contributors"
             attributes["Multi-Release"] = "true"
         }
     }
