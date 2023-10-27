@@ -1,36 +1,49 @@
-# Velocity
+<p align="center">
+<h1 align="center">✨ SparklyVelocity ✨</h1>
+</p>
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/PaperMC/Velocity/gradle.yml)](https://papermc.io/downloads/velocity)
-[![Join our Discord](https://img.shields.io/discord/289587909051416579.svg?logo=discord&label=)](https://discord.gg/papermc)
+SparklyPower's Velocity fork. This fork removes the default Minecraft listener and allows plugins to register binds manually. This way, you can have multiple listeners in your Velocity proxy, just like BungeeCord's multiple listeners!
 
-A Minecraft server proxy with unparalleled server support, scalability,
-and flexibility.
+```kotlin
+    @Subscribe
+    fun onProxyInitialization(event: ProxyInitializeEvent) {
+        // Register our custom listeners
+        // THIS REQUIRES SPARKLYVELOCITY!!!
+        val proxyVersion = server.version
+        if (proxyVersion.name == "SparklyVelocity") {
+            val velocityServer = server as VelocityServer
+            for (listener in config.listeners) {
+                velocityServer.cm.bind(
+                    listener.name,
+                    AddressUtil.parseAndResolveAddress(listener.bind),
+                    listener.proxyProtocol
+                )
+            }
+        } else {
+            logger.warn { "You aren't using SparklyVelocity! We aren't going to attempt to register another listeners then..." }
+        }
+    }
+```
 
-Velocity is licensed under the GPLv3 license.
+You can also check the listener that the connection is using! We use this on SparklyPower to differentiate Java connections from Geyser connections.
 
-## Goals
+"Why not use Geyser's API???"
 
-* A codebase that is easy to dive into and consistently follows best practices
-  for Java projects as much as reasonably possible.
-* High performance: handle thousands of players on one proxy.
-* A new, refreshing API built from the ground up to be flexible and powerful
-  whilst avoiding design mistakes and suboptimal designs from other proxies.
-* First-class support for Paper, Sponge, Fabric and Forge. (Other implementations
-  may work, but we make every endeavor to support these server implementations
-  specifically.)
-  
-## Building
+We like running Geyser standalone because it is useful to update Geyser without restarting the entire proxy and, even if we used Geyser on Velocity, it is impossible to know if it is a Geyser connection on `PreLoginEvent`.
 
-Velocity is built with [Gradle](https://gradle.org). We recommend using the
-wrapper script (`./gradlew`) as our CI builds using it.
+```kotlin
+    private fun isGeyser(connection: InboundConnection): Boolean {
+        val minecraftConnection = if (connection is LoginInboundConnection) {
+            connection.delegatedConnection()
+        } else if (connection is VelocityInboundConnection) {
+            connection.connection
+        } else error("I don't know how to get a MinecraftConnection from a ${connection}!")
 
-It is sufficient to run `./gradlew build` to run the full build cycle.
+        val listenerName = minecraftConnection.listenerName
+        m.logger.info { "${connection.remoteAddress} listener name: $listenerName" }
 
-## Running
-
-Once you've built Velocity, you can copy and run the `-all` JAR from
-`proxy/build/libs`. Velocity will generate a default configuration file
-and you can configure it from there.
-
-Alternatively, you can get the proxy JAR from the [downloads](https://papermc.io/downloads/velocity)
-page.
+        // To detect and keep player IPs correctly, we use a separate Bungee listener that uses the PROXY protocol
+        // To check if the user is connecting thru Geyser, we will check if the listener name matches what we would expect
+        return listenerName == "geyser"
+    }
+```
